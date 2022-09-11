@@ -1,3 +1,4 @@
+from re import S
 from tokenize import Name
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse,HttpResponseRedirect, JsonResponse
@@ -80,13 +81,17 @@ def view(request):
 """
 def assign(request):
     id = request.POST['searchid']
-    student = Student.objects.get(ID = id)
-    if student.level == 3:
-        return render(request,"assign.html",{
-            "student":Student.objects.get(ID = id)
-        })
+    if Student.objects.filter(ID = id).exists():
+        student = Student.objects.get(ID = id)
+        if student.level == 3:
+            return render(request,"assign.html",{
+                "student":Student.objects.get(ID = id)
+            })
+        else:
+            messages.error(request,'The Student is not in level 3')
+            return HttpResponseRedirect(reverse('view'))
     else:
-        messages.error(request,'The Student is not in level 3')
+        messages.error(request,'There is no student with that ID')
         return HttpResponseRedirect(reverse('view'))
 
 def assigndep(request,id):
